@@ -9,7 +9,7 @@ t_file = os.path.join("lattices", "tme.lat")
 acc = accelerator_from_config(t_file)
 conf = tslib.ConfigType()
 
-if False:
+if not False:
     ps = tslib.ss_vect_double()
     ps.set_zero()
 else:

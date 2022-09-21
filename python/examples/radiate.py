@@ -7,7 +7,7 @@ from thor_scsi.lib import (
     ss_vect_double,
     RadiationDelegate,
     RadiationDelegateKick,
-    phase_space_ind,
+    phase_space_index_internal,
     ObservedState
 )
 import os

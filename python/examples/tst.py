@@ -5,10 +5,22 @@ import numpy as np
 #sys.path.append(thor_dir+'/thor/lib')
 
 # Set $PYTHONPATH to: ../Thor_scsi/python
-import thor
-print(thor)
-import thor.lib as scsi
-print(scsi)
+
+from thor_scsi.lib import (
+    ss_vect_tps,
+    ConfigType
+)
+print("\n", dir(ConfigType))
+
+from thor_scsi.factory import accelerator_from_config
+print("\n", dir(accelerator_from_config))
+
+# import thor_scsi
+# print("\n", dir(thor_scsi))
+# import thor_scsi.lib as scsi
+# print("\n", dir(scsi))
+
+exit()
 
 # Constants.
 
@@ -56,59 +68,59 @@ def prt_elems(scsi, lat):
                 )
 
 
-def set_config():
-    lat = scsi.LatticeType()
+def set_config(lat):
+    lat.trace          = False
+    lat.reverse_elem   = True
+    lat.mat_meth       = not False
 
-    lat.conf.trace = False
-    lat.conf.reverse_elem = True
-    lat.conf.mat_meth = not False
-
-    lat.conf.H_exact = False
-    lat.conf.quad_fringe = False
-    lat.conf.Cavity_on = False
-    lat.conf.radiation = False
-    lat.conf.emittance = False
-    lat.conf.IBS = False
-    lat.conf.pathlength = False
-    lat.conf.bpm = 0
-    lat.conf.Cart_Bend = False
-    lat.conf.dip_edge_fudge = True
-
-    return lat
+    lat.H_exact        = False
+    lat.quad_fringe    = False
+    lat.Cavity_on      = False
+    lat.radiation      = False
+    lat.emittance      = False
+    lat.IBS            = False
+    lat.pathlength     = False
+    lat.bpm            = 0
+    lat.Cart_Bend      = False
+    lat.dip_edge_fudge = True
 
 
 def get_lat(file_name):
-    lat = set_config()
-    lat.Lat_Read(file_name, False)
-    lat.Lat_Init()
-    lat.ChamberOff()
-    lat.conf.CODimax = 10
+    t_dir  = os.path.join(os.environ["HOME"], "Nextcloud", "thor_scsi")
+    t_file = os.path.join(t_dir, "b3_tst.lat")
+
+    acc  = accelerator_from_config(t_file)
+    lat = ConfigType()
+    set_config(lat)
+    # lat.ChamberOff()
+    lat.CODimax = 10
 
     return lat
 
 
 def main(file_name):
     lat = get_lat(file_name)
-    for cnt, elem in enumerate(lat.elems):
-        print(f"{cnt:04d} {elem}")
+    print(dir(lat))
+    # for cnt, elem in enumerate(lat.elems):
+    #     print(f"{cnt:04d} {elem}")
 
-    lat.Ring_GetTwiss(True, 0e-3)
+    Ring_GetTwiss(True, 0e-3)
     lat.print("")
-    print("\nnu: ", lat.conf.TotalTune)
+    print("\nnu: ", lat.TotalTune)
 
     # Compute radiation effects.
-    if lat.conf.mat_meth:
+    if lat.mat_meth:
         eps_x, sigma_delta, U_0, J, tau, I = lat.get_eps_x(True)
     else:
         lat.GetEmittance(lat.ElemIndex("cav"), True)
 
-    print("\nE [GeV]: {:3.1f}\n".format(lat.conf.Energy))
+    print("\nE [GeV]: {:3.1f}\n".format(lat.Energy))
 
     print("\nLinear Poincare map:")
-    prt_mat(lat.conf.OneTurnMat)
+    prt_mat(lat.OneTurnMat)
 
     print("\nA:")
-    prt_mat(lat.conf.Ascr)
+    prt_mat(lat.Ascr)
 
     # Compute off-momentum closed orbit.
     lastpos = 0
@@ -121,32 +133,32 @@ def main(file_name):
     """
     print(
         fmt.format(
-            cod=lat.conf.CODvect,
-            hom_max=scsi.HOMmax,
-            mname=scsi.PartsKind.Mpole.name,
-            mvalue=scsi.PartsKind.Mpole.value,
+            cod = lat.CODvect,
+            hom_max = scsi.HOMmax,
+            mname = scsi.PartsKind.Mpole.name,
+            mvalue = scsi.PartsKind.Mpole.value,
         )
     )
 
     if False:
-        lat.prt_fams()
-        lat.prt_elems()
+        conf.prt_fams()
+        conf.prt_elems()
 
     if False:
         prt_elems(scsi, lat)
 
     # Locate 1st dipole & print transport matrix.
-    for k in range(0, lat.conf.Cell_nLoc + 1):
-        if (lat.elems[k].Pkind == scsi.PartsKind.Mpole) and (
-            lat.elems[k].n_design == scsi.MpoleKind.Dip
+    for k in range(0, conf.conf.Cell_nLoc + 1):
+        if (conf.elems[k].Pkind == scsi.PartsKind.Mpole) and (
+            conf.elems[k].n_design == scsi.MpoleKind.Dip
         ):
-            print("\n{} M_elem:\n".format(lat.elems[k].Name))
-            prt_mat(lat.elems[k].M_elem)
+            print("\n{} M_elem:\n".format(conf.elems[k].Name))
+            prt_mat(conf.elems[k].M_elem)
             break
 
-    lat.prt_lat2("linlat1.out", True)
-    lat.prt_lat4("linlat.out", True, 10)
-    lat.prtmfile("flat_file.dat")
+    conf.prt_lat2("linlat1.out", True)
+    conf.prt_lat4("linconf.out", True, 10)
+    conf.prtmfile("flat_file.dat")
 
     # Polymorphic number class.
 
@@ -175,21 +187,21 @@ def main(file_name):
 
     # Compute on-momentum closed orbit.
     lastpos = 0
-    lat.getcod(0e0, lastpos)
-    print("\nCod:", lat.conf.CODvect)
+    conf.getcod(0e0, lastpos)
+    print("\nCod:", conf.conf.CODvect)
 
     # Track one turn.
     ps = scsi.ss_vect_double()
     ps.zero()
     ps[x_] = 1e-3
     ps[y_] = -1e-3
-    lat.Cell_Pass1(0, lat.conf.Cell_nLoc, ps, lastpos)
+    conf.Cell_Pass1(0, conf.conf.Cell_nLoc, ps, lastpos)
     ps.print("\n")
 
     # Compute linear Poincare map.
     M = scsi.ss_vect_tps()
     M.identity()
-    lat.Cell_Pass2(0, lat.conf.Cell_nLoc, M, lastpos)
+    conf.Cell_Pass2(0, conf.conf.Cell_nLoc, M, lastpos)
     M.print("M:\n")
 
 
