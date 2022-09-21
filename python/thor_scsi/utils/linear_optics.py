@@ -147,6 +147,8 @@ def find_phase_space_origin(M: np.ndarray) -> np.ndarray:
     # print(f"after sort w:{mat2txt(w)}  ")
     # print(f"after sort v:{mat2txt(v)}  ")
 
+    # J.B. 21-09-22: separate computation of dispersion into a separate function
+    # from diagonalisation of M.
     eta = compute_dispersion(M)
     A_inv, v1 = compute_A_inv_with_dispersion(v, eta, n_dof=n_dof)
     A = np.linalg.inv(A_inv)
