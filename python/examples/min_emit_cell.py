@@ -51,12 +51,12 @@ def comp_hor_emit(lat, conf, prt):
 
     M_tmp = linear_optics.compute_map(lat, conf)
     M = map2numpy(M_tmp)
-    print(M)
+    print("\nM:\n", array2ss_vect_tps(M))
     A_j = linear_optics.find_phase_space_origin(M)
     A_tmp = np.zeros([7, 7], dtype=np.float)
     A_tmp[:6, :6] = A_j
     A = array2ss_vect_tps(A_tmp)
-    print(A)
+    print("\nA:\n", A)
 
     conf.Cavity_on = False
     conf.radiation = True
@@ -75,7 +75,6 @@ def comp_hor_emit(lat, conf, prt):
 
     # Not used any more better to clean up the name space
     del ps_zero
-
 
     # Radiation delegate for field kick
     type_name = "Bending"
@@ -117,10 +116,8 @@ def comp_hor_emit(lat, conf, prt):
         txt += "   "
         print(txt)
 
-    I_tmp = np.sum([a_del.getSynchrotronIntegralsIncrements() for a_del in
-                    rad_del_kick], axis=0)
-    I = np.zeros(6, float)
-    I[1:] = I_tmp
+    I = np.sum([a_del.getSynchrotronIntegralsIncrements() for a_del in
+                rad_del_kick], axis=0)
     D_rad = np.sum([a_del.getDiffusionCoefficientsIncrements() for a_del in
                     rad_del_kick], axis=0)
 
@@ -156,6 +153,7 @@ def comp_hor_emit(lat, conf, prt):
 
 
 t_dir  = os.path.join(os.environ["HOME"], "Nextcloud", "thor_scsi")
+print(t_dir)
 t_file = os.path.join(t_dir, "b3_tst.lat")
 
 lat  = accelerator_from_config(t_file)
