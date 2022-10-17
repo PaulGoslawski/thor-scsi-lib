@@ -138,8 +138,6 @@ acc = accelerator_from_config(t_file)
 calc_config = tslib.ConfigType()
 
 cav = acc.find("cav", 0)
-cav.setHarmonicNumber(327)
-cav.setPhase(180.0)
 print("\nCavity", repr(cav))
 print(f"""\nCavity info:
   f [MHz] {1e-6*cav.getFrequency()}
