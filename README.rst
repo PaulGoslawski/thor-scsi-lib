@@ -195,8 +195,6 @@ The resulting C code, see below, has now been re-factored by introducing a C++ *
 
 Remark: Although the entire *beam dynamics model* had to be replaced & the model/code/"approach" re-architectured & structured – for a reusable approach – as a *Pascal beam dynamics libary* (standard practise in software engineering), the code was named *Tracy-2*, i.e., inspired by the, somewhat archaic demo/prototype/concept *Tracy*:
 
-(E.g. by not having figured out how to pass records as function/procedure variables – vs. scalars only – for the beam dynamics library, the API was rather poor/sloppy; i.e., not scalable/ill suitable to cope with complexity)
-
   H\. Nishimura "*TRACY, A Tool for Accelerator Design and Analysis*" `EPAC 1988.`_
 
   .. _`EPAC 1988.`: https://accelconf.web.cern.ch/e88/PDF/EPAC1988_0803.PDF
